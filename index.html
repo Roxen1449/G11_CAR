@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Robot</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
+
+<style>
+body { margin:0; background:black; color:white; text-align:center; }
+video { width:100%; transform: scaleX(1); } /* FIXED FLIP */
+canvas { position:absolute; top:0; left:0; }
+</style>
+</head>
+
+<body>
+
+<h2>AI Tracking</h2>
+
+<video id="video" autoplay playsinline muted></video>
+<canvas id="canvas"></canvas>
+
+<script>
+const ESP_IP = "172.19.93.176"; // YOUR IP
+
+let ws;
+let model;
+let lastCmd = "";
+
+// 🔌 WebSocket
+function connectWS(){
+  ws = new WebSocket("ws://" + ESP_IP + ":81/");
+
+  ws.onopen = () => console.log("✅ WS Connected");
+  ws.onerror = (e) => console.log("❌ WS Error", e);
+
+  ws.onclose = () => {
+    console.log("Reconnecting...");
+    setTimeout(connectWS, 1000);
+  };
+}
+
+// 📷 Camera
+async function startCamera(){
+  const video = document.getElementById("video");
+
+  const stream = await navigator.mediaDevices.getUserMedia({
+    video: { facingMode: "environment" }
+  });
+
+  video.srcObject = stream;
+
+  return new Promise(resolve=>{
+    video.onloadedmetadata = ()=> resolve(video);
+  });
+}
+
+// 🤖 Load AI
+async function loadAI(){
+  console.log("Loading AI...");
+  model = await cocoSsd.load();
+  console.log("AI Loaded");
+}
+
+// 🎯 Detection
+async function detect(video){
+  const canvas = document.getElementById("canvas");
+  const ctx = canvas.getContext("2d");
+
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+
+  const predictions = await model.detect(video);
+
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  let cmd = 'S';
+  let found = false;
+
+  predictions.forEach(p=>{
+    if(p.class === "person" && p.score > 0.6){
+
+      found = true;
+
+      let x = p.bbox[0];
+      let y = p.bbox[1];
+      let w = p.bbox[2];
+      let h = p.bbox[3];
+
+      let center = x + w/2;
+
+      // Movement logic
+      if(center < canvas.width*0.4) cmd='L';
+      else if(center > canvas.width*0.6) cmd='R';
+      else cmd='F';
+
+      // 🔵 DRAW BOX
+      ctx.strokeStyle = "blue";
+      ctx.lineWidth = 4;
+      ctx.strokeRect(x,y,w,h);
+
+      ctx.fillStyle = "blue";
+      ctx.font = "16px Arial";
+      ctx.fillText("Human", x, y-5);
+    }
+  });
+
+  if(!found) cmd = 'S';
+
+  // 📡 Send command
+  if(ws && ws.readyState === 1 && cmd !== lastCmd){
+    ws.send(cmd);
+    console.log("Sent:", cmd);
+    lastCmd = cmd;
+  }
+
+  requestAnimationFrame(()=>detect(video));
+}
+
+// 🚀 START
+(async ()=>{
+  connectWS();
+
+  const video = await startCamera();
+
+  await loadAI();
+
+  detect(video);
+})();
+</script>
+
+</body>
+</html>
