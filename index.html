@@ -9,7 +9,7 @@
 
 <style>
 body { margin:0; background:black; color:white; text-align:center; }
-video { width:100%; transform: scaleX(1); } /* FIXED FLIP */
+video { width:100%; transform: scaleX(1); } 
 canvas { position:absolute; top:0; left:0; }
 </style>
 </head>
@@ -22,18 +22,18 @@ canvas { position:absolute; top:0; left:0; }
 <canvas id="canvas"></canvas>
 
 <script>
-const ESP_IP = "172.19.93.176"; // YOUR IP
+const ESP_IP = "172.19.93.176"; // THE IP WE GET AFTER CONNECTING TO THE HOTSPOT
 
 let ws;
 let model;
 let lastCmd = "";
 
-// 🔌 WebSocket
+// WebSocket
 function connectWS(){
   ws = new WebSocket("ws://" + ESP_IP + ":81/");
 
-  ws.onopen = () => console.log("✅ WS Connected");
-  ws.onerror = (e) => console.log("❌ WS Error", e);
+  ws.onopen = () => console.log("WS Connected");
+  ws.onerror = (e) => console.log(" WS Error", e);
 
   ws.onclose = () => {
     console.log("Reconnecting...");
@@ -41,7 +41,7 @@ function connectWS(){
   };
 }
 
-// 📷 Camera
+// Camera
 async function startCamera(){
   const video = document.getElementById("video");
 
@@ -56,14 +56,14 @@ async function startCamera(){
   });
 }
 
-// 🤖 Load AI
+// Load AI
 async function loadAI(){
   console.log("Loading AI...");
   model = await cocoSsd.load();
   console.log("AI Loaded");
 }
 
-// 🎯 Detection
+//  Detection
 async function detect(video){
   const canvas = document.getElementById("canvas");
   const ctx = canvas.getContext("2d");
@@ -95,7 +95,7 @@ async function detect(video){
       else if(center > canvas.width*0.6) cmd='R';
       else cmd='F';
 
-      // 🔵 DRAW BOX
+      // DRAW BOX
       ctx.strokeStyle = "blue";
       ctx.lineWidth = 4;
       ctx.strokeRect(x,y,w,h);
@@ -108,7 +108,7 @@ async function detect(video){
 
   if(!found) cmd = 'S';
 
-  // 📡 Send command
+  //  Send command
   if(ws && ws.readyState === 1 && cmd !== lastCmd){
     ws.send(cmd);
     console.log("Sent:", cmd);
@@ -118,7 +118,7 @@ async function detect(video){
   requestAnimationFrame(()=>detect(video));
 }
 
-// 🚀 START
+//  START
 (async ()=>{
   connectWS();
 
