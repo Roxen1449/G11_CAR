@@ -1,9 +1,9 @@
 #include <WiFi.h>
 #include <WebSocketsServer.h>
 
-// 🔥 MUST MATCH YOUR PHONE HOTSPOT
-const char* ssid = "Piyush's A26";
-const char* password = "easy1234";
+
+const char* ssid = "Piyush's A26"; // here will be the name of hotspot and below will be its password
+const char* password = "easy1234"; 
 
 WebSocketsServer webSocket(81);
 
@@ -69,8 +69,8 @@ void setup(){
   ledcAttach(ENA,1000,8);
   ledcAttach(ENB,1000,8);
 
-  // 🔥 CONNECT TO PHONE HOTSPOT
-  WiFi.begin(ssid, password);
+
+  WiFi.begin(ssid, password); // using this we will be connecting to the wifi / hotspot of a person's phone 
 
   Serial.print("Connecting to Hotspot");
 
@@ -79,9 +79,9 @@ void setup(){
     Serial.print(".");
   }
 
-  Serial.println("\n✅ Connected!");
+  Serial.println("\ Connected!");
   Serial.print("ESP32 IP: ");
-  Serial.println(WiFi.localIP());  // IMPORTANT
+  Serial.println(WiFi.localIP());  // here local ip will be printed which in further we will be using in index.html 
 
   webSocket.begin();
   webSocket.onEvent(onWS);
