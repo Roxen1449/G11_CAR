@@ -2,8 +2,8 @@
 #include <WebSocketsServer.h>
 
 
-const char* ssid = "Piyush's A26"; // here will be the name of hotspot and below will be its password
-const char* password = "easy1234"; 
+const char* ssid = "MyHotspot "; // here will be the name of hotspot and below will be its password
+const char* password = "MyPassword"; 
 
 WebSocketsServer webSocket(81);
 
