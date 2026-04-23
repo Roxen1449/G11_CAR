@@ -16,13 +16,15 @@ canvas { position:absolute; top:0; left:0; }
 
 <body>
 
-<h2>AI Tracking</h2>
+<h2>Tracking</h2>
 
 <video id="video" autoplay playsinline muted></video>
 <canvas id="canvas"></canvas>
 
 <script>
-const ESP_IP = "172.19.93.176"; // THE IP WE GET AFTER CONNECTING TO THE HOTSPOT
+const ESP_IP = "172.19.93.176"; // THE IP WE GET AFTER CONNECTING TO THE HOTSPOT 
+  // IT WILL BE DIFFERENT FOR YOUR HOTSPOT 
+  // IN MY PHONE IT WAS THIS IP SO YOU CAN CHANGE ACCORDING TO THAT
 
 let ws;
 let model;
